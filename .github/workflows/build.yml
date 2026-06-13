@@ -40,34 +40,48 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon
-
-      - name: List APK output
+        id: build
+        continue-on-error: true
         run: |
-          echo "=== APK output files ==="
-          find app/build/outputs/apk -name "*.apk" -type f
-          ls -lh app/build/outputs/apk/release/ || true
+          ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
+          echo "gradle_exit=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Print build errors
+        if: always()
+        run: |
+          echo "=== GRADLE ERROR LINES ==="
+          grep -i "error\|FAILED\|Exception\|Caused by" /tmp/gradle.log | tail -50 || echo "(no errors found)"
+          echo ""
+          echo "=== LAST 100 LINES ==="
+          tail -100 /tmp/gradle.log
+
+      - name: Check APK exists
+        id: check_apk
+        run: |
+          echo "=== Searching for APK ==="
+          find app/build -name "*.apk" 2>/dev/null || echo "No APK found"
+          ls app/build/outputs/apk/ 2>/dev/null || echo "No APK output dir"
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: grid-rpg-apk
-          path: app/build/outputs/apk/release/*.apk
+          path: |
+            app/build/outputs/apk/**/*.apk
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main'
+        if: always() && github.ref == 'refs/heads/main'
         with:
           tag_name: v${{ github.run_number }}
           name: "Grid RPG v${{ github.run_number }}"
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/**/*.apk
           generate_release_notes: false
           body: |
             🎮 Grid RPG Android APK
-            
-            Build dari commit ${{ github.sha }}
-            
-            **Cara install:** Download APK di bawah, aktifkan "Install from unknown sources" di Android, lalu install.
+            Build ${{ github.run_number }} dari commit ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
