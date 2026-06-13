@@ -24,7 +24,7 @@ class GameView @JvmOverloads constructor(
         strokeWidth = 2f
     }
     private val paintOuterZone = Paint().apply {
-        color = Color.parseArray(arrayOf(Color.parseColor("#3d1515")))?.get(0) ?: Color.parseColor("#3d1515")
+        color = Color.parseColor("#3d1515")
         style = Paint.Style.FILL
     }
     private val paintInnerZone = Paint().apply {
