@@ -21,13 +21,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+          # No cache - fresh build every time
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --rerun-tasks
 
       - name: List APK output
         run: find app/build/outputs/apk -name "*.apk"
@@ -47,7 +47,7 @@ jobs:
           files: app/build/outputs/apk/debug/app-debug.apk
           generate_release_notes: false
           body: |
-            🎮 **Grid RPG** - APK Android
+            🌳 **Grid RPG** - APK Android
             
             Build #${{ github.run_number }}
             
@@ -58,9 +58,7 @@ jobs:
             
             **Gameplay:**
             - Grid 5x5, karakter snap ke grid
-            - Gerak di area 3x3 tengah
-            - Enemy spawn di tepi luar
-            - Wave timer 30 detik
-            - Tiap 5 wave: pilih upgrade
+            - Gerak di area 3x3 tengah, enemy spawn di tepi luar
+            - Wave timer 30 detik, tiap 5 wave pilih upgrade
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
