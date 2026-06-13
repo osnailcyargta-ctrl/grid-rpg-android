@@ -23,65 +23,44 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Setup Android debug keystore
-        run: |
-          mkdir -p $HOME/.android
-          keytool -genkey -v \
-            -keystore $HOME/.android/debug.keystore \
-            -alias androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass android \
-            -keypass android \
-            -dname "CN=Android Debug,O=Android,C=US"
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK
-        id: build
-        continue-on-error: true
-        run: |
-          ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
-          echo "gradle_exit=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon
 
-      - name: Print build errors
-        if: always()
-        run: |
-          echo "=== GRADLE ERROR LINES ==="
-          grep -i "error\|FAILED\|Exception\|Caused by" /tmp/gradle.log | tail -50 || echo "(no errors found)"
-          echo ""
-          echo "=== LAST 100 LINES ==="
-          tail -100 /tmp/gradle.log
+      - name: List APK output
+        run: find app/build/outputs/apk -name "*.apk"
 
-      - name: Check APK exists
-        id: check_apk
-        run: |
-          echo "=== Searching for APK ==="
-          find app/build -name "*.apk" 2>/dev/null || echo "No APK found"
-          ls app/build/outputs/apk/ 2>/dev/null || echo "No APK output dir"
-
-      - name: Upload APK
-        if: always()
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: grid-rpg-apk
-          path: |
-            app/build/outputs/apk/**/*.apk
-          if-no-files-found: warn
+          name: GridRPG-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      - name: Create Release
+      - name: Create Release with APK
         uses: softprops/action-gh-release@v2
-        if: always() && github.ref == 'refs/heads/main'
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Grid RPG v${{ github.run_number }}"
-          files: app/build/outputs/apk/**/*.apk
+          tag_name: build-${{ github.run_number }}
+          name: "Grid RPG - Build ${{ github.run_number }}"
+          files: app/build/outputs/apk/debug/app-debug.apk
           generate_release_notes: false
           body: |
-            🎮 Grid RPG Android APK
-            Build ${{ github.run_number }} dari commit ${{ github.sha }}
+            🎮 **Grid RPG** - APK Android
+            
+            Build #${{ github.run_number }}
+            
+            **Cara install:**
+            1. Download `app-debug.apk` di bawah
+            2. Aktifkan "Install from unknown sources" di pengaturan Android
+            3. Install APK-nya
+            
+            **Gameplay:**
+            - Grid 5x5, karakter snap ke grid
+            - Gerak di area 3x3 tengah
+            - Enemy spawn di tepi luar
+            - Wave timer 30 detik
+            - Tiap 5 wave: pilih upgrade
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
