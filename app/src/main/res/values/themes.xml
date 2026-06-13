@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GridRPG" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#1a1a2e</item>
+        <item name="colorPrimaryVariant">#16213e</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="colorSecondary">#00e5ff</item>
+        <item name="colorOnSecondary">#000000</item>
+        <item name="android:statusBarColor">#0d0d1a</item>
+        <item name="android:navigationBarColor">#0d0d1a</item>
+        <item name="android:windowBackground">#0d0d1a</item>
+    </style>
+
+    <style name="UpgradeDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
+        <item name="colorPrimary">#00e5ff</item>
+        <item name="android:background">#1a1a2e</item>
+        <item name="android:textColorPrimary">#ffffff</item>
+        <item name="android:textColorSecondary">#aaaacc</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogBtn</item>
+    </style>
+
+    <style name="DialogBtn" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">#00e5ff</item>
+    </style>
+</resources>

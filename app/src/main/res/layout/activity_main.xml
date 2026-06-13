@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0d0d1a">
+
+    <!-- HUD Top -->
+    <LinearLayout
+        android:id="@+id/hudTop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:background="#1a1a2e"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvHp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="HP: 10/10"
+            android:textColor="#ff4444"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvDamage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ATK: 3"
+            android:textColor="#ffaa00"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvWave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Wave: 1"
+            android:textColor="#00e5ff"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Time: 30s"
+            android:textColor="#aaffaa"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Kill: 0"
+            android:textColor="#ff88ff"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:gravity="end"/>
+    </LinearLayout>
+
+    <!-- Game Canvas -->
+    <com.gridrpg.game.GameView
+        android:id="@+id/gameView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/hudTop"
+        app:layout_constraintBottom_toTopOf="@id/controlsLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Controls Bottom -->
+    <LinearLayout
+        android:id="@+id/controlsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:background="#1a1a2e"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- D-Pad -->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/btnUp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="▲"
+                android:textSize="20sp"
+                android:textColor="#ffffff"
+                android:background="@drawable/btn_dpad"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
+                android:padding="0dp"/>
+
+            <Button
+                android:id="@+id/btnLeft"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="◀"
+                android:textSize="20sp"
+                android:textColor="#ffffff"
+                android:background="@drawable/btn_dpad"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:padding="0dp"/>
+
+            <Button
+                android:id="@+id/btnRight"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="▶"
+                android:textSize="20sp"
+                android:textColor="#ffffff"
+                android:background="@drawable/btn_dpad"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:padding="0dp"/>
+
+            <Button
+                android:id="@+id/btnDown"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="▼"
+                android:textSize="20sp"
+                android:textColor="#ffffff"
+                android:background="@drawable/btn_dpad"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:padding="0dp"/>
+
+        </RelativeLayout>
+
+        <!-- Attack Button -->
+        <Button
+            android:id="@+id/btnAttack"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="⚔"
+            android:textSize="32sp"
+            android:textColor="#ffffff"
+            android:background="@drawable/btn_attack"
+            android:padding="0dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
