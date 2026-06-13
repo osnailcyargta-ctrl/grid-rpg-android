@@ -25,18 +25,26 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: List res files
+      - name: Build Debug APK and capture errors
         run: |
-          echo "=== Mipmap files ==="
-          find app/src/main/res/mipmap* -type f | sort
-          echo "=== Drawable files ==="
-          ls app/src/main/res/drawable/
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
-
-      - name: Find APK
-        run: find app/build/outputs -name "*.apk" -type f
+          # Run gradle, capture output
+          ./gradlew assembleDebug --no-daemon 2>&1 | tee /tmp/gradle.log || true
+          
+          # Emit error annotations (visible in PR/commit checks)
+          grep -E "^(e:|error:|ERROR)" /tmp/gradle.log | while IFS= read -r line; do
+            echo "::error::$line"
+          done
+          
+          # Also print the failure section
+          grep -A3 "FAILURE\|What went wrong\|Caused by" /tmp/gradle.log | while IFS= read -r line; do
+            echo "::warning::$line"
+          done
+          
+          # Fail if no APK
+          find app/build/outputs/apk -name "*.apk" 2>/dev/null | grep -q . || {
+            echo "::error::No APK produced!"
+            exit 1
+          }
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -51,10 +59,6 @@ jobs:
           tag_name: build-${{ github.run_number }}
           name: "Grid RPG - Build ${{ github.run_number }}"
           files: app/build/outputs/apk/debug/app-debug.apk
-          body: |
-            🌳 **Grid RPG** - APK Android
-            Build #${{ github.run_number }}
-            
-            Download `app-debug.apk`, aktifkan install unknown sources, install.
+          body: "🌳 Grid RPG APK - Build #${{ github.run_number }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
