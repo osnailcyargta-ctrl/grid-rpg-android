@@ -14,22 +14,10 @@ class GameView @JvmOverloads constructor(
     var engine: GameEngine? = null
 
     private val paintBg = Paint().apply { color = Color.parseColor("#1a1a2e") }
-    private val paintGrid = Paint().apply {
-        color = Color.parseColor("#2d2d44")
-        style = Paint.Style.FILL
-    }
-    private val paintGridBorder = Paint().apply {
+    private val paintGridBorderPaint = Paint().apply {
         color = Color.parseColor("#444466")
         style = Paint.Style.STROKE
         strokeWidth = 2f
-    }
-    private val paintOuterZone = Paint().apply {
-        color = Color.parseColor("#3d1515")
-        style = Paint.Style.FILL
-    }
-    private val paintInnerZone = Paint().apply {
-        color = Color.parseColor("#1a2a1a")
-        style = Paint.Style.FILL
     }
     private val paintPlayer = Paint().apply {
         color = Color.parseColor("#00e5ff")
@@ -64,6 +52,14 @@ class GameView @JvmOverloads constructor(
         typeface = Typeface.DEFAULT_BOLD
         isAntiAlias = true
     }
+    private val paintOuterTile = Paint().apply {
+        color = Color.parseColor("#2a1010")
+        style = Paint.Style.FILL
+    }
+    private val paintInnerTile = Paint().apply {
+        color = Color.parseColor("#102010")
+        style = Paint.Style.FILL
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -85,8 +81,8 @@ class GameView @JvmOverloads constructor(
 
                 val isOuter = x == 0 || x == GRID_SIZE - 1 || y == 0 || y == GRID_SIZE - 1
                 canvas.drawRect(left + 1, top + 1, right - 1, bottom - 1,
-                    if (isOuter) makeOuterPaint() else makeInnerPaint())
-                canvas.drawRect(left, top, right, bottom, paintGridBorder)
+                    if (isOuter) paintOuterTile else paintInnerTile)
+                canvas.drawRect(left, top, right, bottom, paintGridBorderPaint)
             }
         }
 
@@ -108,17 +104,14 @@ class GameView @JvmOverloads constructor(
             val hpFrac = enemy.hp.toFloat() / enemy.maxHp
             canvas.drawRect(barLeft, barTop, barLeft + barW * hpFrac, barTop + barH, paintHpBar)
 
-            // Enemy label
             val smallPaint = Paint(paintText).apply { textSize = tileSize * 0.22f }
             canvas.drawText("E", cx, cy + tileSize * 0.1f, smallPaint)
         }
 
         // Draw player
         if (eng.player.alive) {
-            val px = eng.player.pos.x
-            val py = eng.player.pos.y
-            val cx = offsetX + px * tileSize + tileSize / 2f
-            val cy = offsetY + py * tileSize + tileSize / 2f
+            val cx = offsetX + eng.player.pos.x * tileSize + tileSize / 2f
+            val cy = offsetY + eng.player.pos.y * tileSize + tileSize / 2f
             val r = tileSize * 0.38f
 
             canvas.drawCircle(cx, cy, r, paintPlayer)
@@ -130,15 +123,5 @@ class GameView @JvmOverloads constructor(
             }
             canvas.drawText("P", cx, cy + tileSize * 0.1f, smallPaint)
         }
-    }
-
-    private fun makeOuterPaint() = Paint().apply {
-        color = Color.parseColor("#2a1010")
-        style = Paint.Style.FILL
-    }
-
-    private fun makeInnerPaint() = Paint().apply {
-        color = Color.parseColor("#102010")
-        style = Paint.Style.FILL
     }
 }
