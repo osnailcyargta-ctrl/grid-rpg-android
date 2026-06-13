@@ -21,18 +21,32 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # No cache - fresh build every time
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --rerun-tasks
-
-      - name: List APK output
-        run: find app/build/outputs/apk -name "*.apk"
+        id: gradle_build
+        run: |
+          ./gradlew assembleDebug --no-daemon --rerun-tasks 2>&1 | tee build.log || true
+          
+          # Print errors to step summary (visible in GitHub UI)
+          echo "## Build Log - Errors" >> $GITHUB_STEP_SUMMARY
+          grep -E "^(ERROR|FAILED|> Task|Caused by|Exception)" build.log | head -40 >> $GITHUB_STEP_SUMMARY || true
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Last 60 lines" >> $GITHUB_STEP_SUMMARY
+          tail -60 build.log >> $GITHUB_STEP_SUMMARY
+          
+          # Check if APK was produced
+          if find app/build/outputs/apk -name "*.apk" 2>/dev/null | grep -q .; then
+            echo "BUILD_SUCCESS=true" >> $GITHUB_OUTPUT
+          else
+            echo "BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
       - name: Upload APK artifact
+        if: steps.gradle_build.outputs.BUILD_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: GridRPG-debug
@@ -40,25 +54,14 @@ jobs:
           retention-days: 30
 
       - name: Create Release with APK
+        if: steps.gradle_build.outputs.BUILD_SUCCESS == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: "Grid RPG - Build ${{ github.run_number }}"
           files: app/build/outputs/apk/debug/app-debug.apk
-          generate_release_notes: false
           body: |
             🌳 **Grid RPG** - APK Android
-            
             Build #${{ github.run_number }}
-            
-            **Cara install:**
-            1. Download `app-debug.apk` di bawah
-            2. Aktifkan "Install from unknown sources" di pengaturan Android
-            3. Install APK-nya
-            
-            **Gameplay:**
-            - Grid 5x5, karakter snap ke grid
-            - Gerak di area 3x3 tengah, enemy spawn di tepi luar
-            - Wave timer 30 detik, tiap 5 wave pilih upgrade
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
